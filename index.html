@@ -1,0 +1,398 @@
+<html>
+<head>
+<title>LEGO: Learning EGOcentric Action Frame Generation via Visual Instruction Tuning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@200&display=swap" rel="stylesheet"> 
+<style type="text/css">
+.content {
+    width:930px;
+    text-align: left;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 200;
+}
+h1 {
+    font-weight: 600;
+}
+table.authors {
+    width:90%;
+    text-align:center;
+}
+table.authors > tr > td, table.authors > tbody > tr > td {
+    width:25%;
+}
+.authors a, .lnk {
+    color:rgb(82, 147, 221);
+    font-size:120%;
+    /* text-decoration:underline; */
+}
+.authors a:hover, .lnk:hover {
+    color:gray;
+    font-size:120%;
+    /* text-decoration:underline; */
+}
+.btn {
+    color:black;
+    text-decoration:none;
+}
+.btn:hover {
+    color:gray;
+    text-decoration:none;
+}
+table.demo1 {
+    width:100%;
+    text-align:center;
+}
+.demo1 img {
+    width:300px;
+}
+td.prompt {
+    width:100%;
+    text-align:center;
+    font-family: monospace;
+    font-size:150%;
+}
+td.prompt a {
+    color:#ddd;
+    text-decoration:none;
+}
+td.prompt a:hover, td.prompt a.active {
+    color:black;
+    text-decoration:none;
+}
+.img-stack {
+    position:relative;
+    display: block;
+    width:300px;
+    height:300px;
+}
+.img-stack img {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 0;
+}
+.img-stack img.active {
+    z-index: 1;
+}
+.img-stack .overlay {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+    transition: opacity .2s;
+    z-index: 2;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background: white;
+}
+.carousel {
+    position:relative;
+    width:650px;
+    height:340px;
+    overflow:hidden;
+}
+.carousel > table {
+    position:absolute;
+    top: 0px;
+    transition: left 1s;
+    width:650px;
+}
+.carousel_table td {
+    text-align:center;
+    font-size: 130%;
+}
+.carousel_table td:nth-child(2) {
+    font-size:150%;
+}
+pre {
+    background-color:#eee;
+    border: 1px solid #999;
+    border-radius: 5px;
+    padding: 10px;
+white-space: break-spaces;
+width:80%;
+text-align:left;
+}
+td.gif {
+    width: 33%;
+    font-family: monospace;
+    font-size: 120%;
+}
+.dl_link {
+    display: inline-block;
+    padding-right: 6px;
+    padding-left: 6px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+.dl_link, .dl_link td {
+    color: black;
+    text-decoration: none;
+    font-size: 120%;
+}
+.dl_link, .dl_link table {
+    border-radius: 5px;
+    background-color: none;
+}
+.dl_link:hover, .dl_link:hover * {
+    color: #404040 !important;
+    background-color: #d9d9d9 !important;
+}
+@media only screen and (max-width: 930px) {
+    .content { width:100% !important; }
+}
+</style>
+<script type="text/javascript">
+  var curr_idx = 0;
+  var num_tables = 5;
+  function move(direction) {
+      if (curr_idx == 0 && direction < 0) {
+	  move(num_tables - 1);
+	  return;
+      }
+      if (curr_idx == num_tables - 1 && direction > 0) {
+	  move(-1 * (num_tables - 1));
+	  return;
+      }
+      tables = document.getElementsByClassName("carousel_table");
+      for(var i = 0; i < tables.length; i++) {
+	  tables[i].style.left = (parseInt(tables[i].style.left.substring(0, tables[i].style.left.length - 2)) - direction * 650).toString() + "px";
+      }
+      curr_idx += direction;
+  }
+  function hideOverlay(classname) {
+      document.getElementById(classname + "_overlay").style.opacity = "0";
+  }
+  function activate(classname, idx, max) {
+      document.getElementById(classname + "_overlay").style.opacity = "1";
+      setTimeout(function() {
+	  for(var i = 1; i <= max; i++) {
+	      document.getElementById(classname + "_" + i.toString()).className = "";
+	      document.getElementById(classname + "_text_" + i.toString()).className = "";
+	  }
+	  document.getElementById(classname + "_" + idx.toString()).className = "active";
+	  document.getElementById(classname + "_text_" + idx.toString()).className = "active";
+	  setTimeout(hideOverlay, 200, classname);
+      }, 200);
+  }
+  var moving = true;
+  var stopCounter = 0;
+  function autoMove(currCounter) {
+      if(moving && currCounter >= stopCounter) {
+	  move(1);
+          setTimeout(autoMove, 5000, stopCounter);
+      }
+  }
+  function beginMoving() {
+      moving = true;
+      setTimeout(autoMove, 5000, stopCounter);
+  }
+  function stopMoving() {
+      moving = false;
+      stopCounter++;
+  }
+</script>
+</head>
+
+<body dir="ltr" onload="beginMoving();">
+<center><div class="content">
+    <!----------------------------------- Title and Authors ----------------------------------->
+    <center>
+      <h1>LEGO: <u>L</u>earning <u>EGO</u>centric Action Frame Generation via Visual Instruction Tuning</h1>
+      <table class="authors">
+        <tr>
+          <td><a href="https://bolinlai.github.io/">Bolin Lai</a><sup>1,2</sup></td>
+          <td><a href="https://sites.google.com/view/xiaoliangdai/">Xiaoliang Dai</a><sup>1</sup></td>
+          <td><a href="https://www.linkedin.com/in/lawrencechen98/">Lawrence Chen</a><sup>1</sup></td>
+        </tr>
+        <tr>
+          <td><a href="https://scholar.google.com/citations?user=7v1LZxUAAAAJ&hl=en">Peng Guan</a><sup>1</sup></td>
+          <td><a href="https://rehg.org/">James M. Rehg</a><sup>3</sup></td>
+          <td><a href="https://aptx4869lm.github.io/">Miao Liu</a><sup>1</sup></td>
+        </tr>
+      </table>
+      <br>
+      <table class="authors">
+        <td><span style="font-size: 19px"><sup>1</sup>GenAI,Meta</span></td>
+        <td><span style="font-size: 19px"><sup>2</sup>Georgia Institute of Technology</span></td>
+        <td><span style="font-size: 19px"><sup>3</sup>University of Illinois Urbana-Champaign</span></td>
+      </table>
+      <br>
+      <br>
+    </center>
+
+    <!----------------------------------- Carousel Demo ----------------------------------->
+    <table class="demo1" onmouseenter="stopMoving();" onmouseleave="beginMoving();">
+      <tr>
+        <td style="width:5%;font-size:150%;" valign="top"><center><div style="height:100px;position:relative;"><a href="#" onclick="move(-1);" class="btn" style="position:absolute;top:120px;">&#9664;</a></div></center></td>
+        <td style="width:100%;">
+          <center>
+            <div class="carousel">
+              <table id="rinse_jacket" class="carousel_table" style="left:0px;">
+                <tr><td><b>Input Frame</b></td><td></td><td><b>Action Frame</b></td></tr>
+                <tr>
+                  <td><img src="figures/carousel/rinse_jacket_input.png"></td>
+                  <td><center>&rightarrow;</center></td>
+                  <td><img src="figures/carousel/rinse_jacket_output.png"></td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="prompt" style="font-size: 22px">"How to rinse the jacket inside the plastic bath?"</td>
+                </tr>
+              </table>
+              <table id="sew_toy" class="carousel_table" style="left:650px;">
+                <tr><td><b>Input Frame</b></td><td></td><td><b>Action Frame</b></td></tr>
+                <tr>
+                  <td><img src="figures/carousel/sew_toy_input.png"></td>
+                  <td><center>&rightarrow;</center></td>
+                  <td><img src="figures/carousel/sew_toy_output.png"></td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="prompt" style="font-size: 22px">"How to sew the cloth doll?"</td>
+                </tr>
+              </table>
+              <table id="pour_clay" class="carousel_table" style="left:1300px;">
+                <tr><td><b>Input Frame</b></td><td></td><td><b>Action Frame</b></td></tr>
+                <tr>
+                  <td><img src="figures/carousel/pour_clay_input.png"></td>
+                  <td><center>&rightarrow;</center></td>
+                  <td><img src="figures/carousel/pour_clay_output.png"></td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="prompt" style="font-size: 22px">"How to pour clay mix from the brick mold on the ground?"</td>
+                </tr>
+              </table>
+              <table id="take_glass" class="carousel_table" style="left:1950px;">
+                <tr><td><b>Input Frame</b></td><td></td><td><b>Action Frame</b></td></tr>
+                <tr>
+                  <td><img src="figures/carousel/take_glass_input.png"></td>
+                  <td><center>&rightarrow;</center></td>
+                  <td><img src="figures/carousel/take_glass_output.png"></td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="prompt" style="font-size: 22px">"How to take glass?"</td>
+                </tr>
+              </table>
+              <table id="knead_dough" class="carousel_table" style="left:2600px;">
+                <tr><td><b>Input Frame</b></td><td></td><td><b>Action Frame</b></td></tr>
+                <tr>
+                  <td><img src="figures/carousel/knead_dough_input.png" /></td>
+                  <td><center>&rightarrow;</center></td>
+                  <td><img src="figures/carousel/knead_dough_output.png"></td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="prompt" style="font-size: 22px">"How to knead dough?"</td>
+                </tr>
+              </table>
+              <table id="wipe_sink" class="carousel_table" style="left:3250px;">
+                <tr><td><b>Input Frame</b></td><td></td><td><b>Action Frame</b></td></tr>
+                <tr>
+                  <td><img src="figures/carousel/wipe_sink_input.png" /></td>
+                  <td><center>&rightarrow;</center></td>
+                  <td><img src="figures/carousel/wipe_sink_output.png"></td>
+                </tr>
+                <tr>
+                  <td colspan="3" class="prompt" style="font-size: 22px">"How to wipe sink?"</td>
+                </tr>
+              </table>
+            </div>
+          </center>
+        </td>
+        <td style="width:5%;font-size:150%;" valign="top"><center><div style="height:100px;position:relative;"><a href="#" onclick="move(1);" class="btn" style="position:absolute;top:120px;">&#9658;</a></div></center></td>
+      </tr>
+    </table>
+    <!-- <span style="font-size:110%;">Imagic edits a single real-world image using a target text prompt. It can apply complex non-rigid changes.</span><br /><br /> -->
+    <!-- <b><a href="https://arxiv.org/abs/2210.09276" class="lnk">arXiv</a></b>&nbsp;&nbsp;|&nbsp;&nbsp;<b><a href="https://arxiv.org/pdf/2210.09276.pdf" class="lnk">PDF</a></b> -->
+
+    <!----------------------------------- Teaser Image ----------------------------------->
+    <div style="text-align: center;">
+      <img src="figures/teaser.png"  style="width:100%;">
+    </div>
+    <br>
+    <p>
+      When a user performing a complex task asks a large language model (LLM) for instructions (a) on how to complete the steps, she receives a generic answer and has to translate the guidance into her specific situation. If she is wearing a camera, then the prompt can be augmented with an egocentric view of the scene and passed to a Visual LLM (b), and the description is now contextualized to her situation. But she still faces the challenge of parsing a written description. When she uses our novel LEGO model (c), however, the combined image and prompt are used to automatically generate an image that provides visual guidance exactly in her situation from the egocentric viewpoint. Now she can complete her task seamlessly!
+    </p>
+    <br>
+    
+    <!----------------------------------- Abstract ----------------------------------->
+    <div id="abstract" style="border-top:1px solid gray;">
+      <h2>Abstract</h2>
+      <p>
+        Generating instructional images of human daily actions from an egocentric viewpoint serves as a key step towards efficient skill transfer. In this paper, we introduce a novel problem -- egocentric action frame generation. The goal is to synthesize an image depicting an action in the user's context (i.e., action frame) by conditioning on a user prompt and an input egocentric image. Notably, existing egocentric action datasets lack the detailed annotations that describe the execution of actions. Additionally, existing diffusion-based image manipulation models are sub-optimal in controlling the state transition of an action in egocentric image pixel space because of the domain gap. To this end, we propose to Learn EGOcentric (LEGO) action frame  generation via visual instruction tuning. First, we introduce a prompt enhancement scheme to generate enriched action descriptions from a visual large language model (VLLM) by visual instruction tuning. Then we propose a novel method to leverage image and text embeddings from the VLLM as additional conditioning to improve the performance of a diffusion model. We validate our model on two egocentric datasets -- Ego4D and Epic-Kitchens. Our experiments show substantial improvement over prior image manipulation models in both quantitative and qualitative evaluation. We also conduct detailed ablation studies and analysis to provide insights in our method.
+      </p>
+    </div>
+    <br>
+
+    <!----------------------------------- Method ----------------------------------->
+    <div id="method" style="border-top:1px solid gray;">
+      <h2>The Proposed Method</h2>
+      <center>
+        <img src="figures/method.png" style="width:100%;">
+      </center>
+      <br>
+      <p>
+        The key insight of our proposed LEGO model is leveraging the strong capability of a VLLM to enhance the diffusion model for egocentric action frame generation. The annotations of existing egocentric datasets do not describe the details of how actions are conducted. As a remedy, we leverage visual instruction tuning to finetune a VLLM that enriches action descriptions based on the egocentric visual prompt. In addition, the existing diffusion-based image manipulation models are limited in understanding egocentric action state transition, due to the domain gap between the exocentric pre-training dataset and the egocentric action dataset for our problem. To bridge this gap, we propose a novel approach that leverages VLLM embeddings to control the state transition of actions and to generate action frames accordingly.
+      </p>
+    </div>
+    <br>
+
+    <div id="examples_ego4d" style="border-top:1px solid gray;">
+      <h2>Demo Video</h2>
+      <center>
+        <video controls="controls" width="720" autoplay>
+          <source src="figures/Demo.mp4" type="video/mp4">
+        </video>
+      </center>
+    </div>
+    <br>
+
+    <!----------------------------------- Visualization ----------------------------------->
+    <div id="examples_ego4d" style="border-top:1px solid gray;">
+      <h2>Generation Examples</h2>
+      <center>
+        <img src="figures/visualization.png" style="width:100%;">
+      </center>
+    </div>
+    <br>
+    <div id="examples_ego4d" style="border-top:1px solid gray;">
+      <h2>Additional Examples on Ego4D</h2>
+      <center>
+        <img src="figures/visualization_1.png" style="width:100%;">
+      </center>
+    </div>
+    <br>
+    <div id="examples_epickitchens" style="border-top:1px solid gray;">
+      <h2>Additional Examples on Epic-Kitchens</h2>
+      <center>
+        <img src="figures/visualization_2.png" style="width:100%;">
+      </center>
+    </div>
+    <br>
+    <div id="examples_new_acitons" style="border-top:1px solid gray;">
+      <h2>Generating Novel Actions in the Same Contexts</h2>
+      <center>
+        <img src="figures/visualization_new_actions.png" style="width:90%;">
+      </center>
+    </div>
+    <br>
+
+    <!----------------------------------- Bibtex ----------------------------------->
+    <div id="bibtex" style="border-top:1px solid gray;">
+      <h2>BibTeX</h2>
+      <center>
+      <pre><code>@article{lai2023lego,
+        title={LEGO: Learning EGOcentric Action Frame Generation via Visual Instruction Tuning},
+        author={Lai, Bolin and Dai, Xiaoliang and Chen, Lawrence and Pang, Guan and Rehg, James M and Liu, Miao},
+        journal={arXiv preprint arXiv:2312.03849},
+        year={2023}
+      }
+      </code></pre>
+      </center>
+    </div>
+
+</div></center>
+
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</body>
+</html>
